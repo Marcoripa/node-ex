@@ -1,12 +1,20 @@
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
+const {PrismaClient} = require("@prisma/client");
+const cors = require('cors')
 // const {validate} = require("./validation/index")
 
 const prisma = new PrismaClient();
 
+const corsOptions = {
+  origin: "http://localhost:8080"
+}
+
 const app = express();
 
+app.use(cors(corsOptions))
+
 app.use(express.json());
+
 
 //GET
 app.get("/users", async (req, res) => {
