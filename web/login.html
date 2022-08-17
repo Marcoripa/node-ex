@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Homepage</h1>
+    <nav>
+      <a href="/auth/github">Login with GitHub</a>
+    </nav>
+    <section>
+      <form
+        action="http://localhost:3000/users/image"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <input type="file" name="image" />
+        <input type="submit" />
+      </form>
+    </section>
+    <section>
+      <form id="users-form">
+        <label for="name">Name</label>
+        <input id="name" type="text" name="name" />
+        <label for="description">Description</label>
+        <input id="description" type="text" name="description" />
+        <label for="age">Age</label>
+        <input id="age" type="number" name="age" />
+        <input type="submit" />
+      </form>
+    </section>
+    <script>
+      const usersForm = document.getElementById("users-form")
+      usersForm.addEventListener('submit', async (e) => {
+       e.preventDefault()
+
+       const formData = new FormData(usersForm)
+       const plainFormData = Object.fromEntries(formData.entries())
+       const formDataJsonString = JSON.stringify(plainFormData)
+
+       const response = await fetch("http://localhost:3000/users", {
+         method: "POST",
+         headers: {
+           "Content-Type": "application/json"
+         },
+         body: formDataJsonString,
+         credentials: "include"
+       })
+      })
+    </script>
+  </body>
+</html>

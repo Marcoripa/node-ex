@@ -10,6 +10,11 @@ const prisma = new PrismaClient();
 const { Router } = require("express");
 const router = Router()
 
+//Import Passport authorization
+const {checkAuthorization} = require("../middleware/passport")
+
+
+//ROUTES
 //GET
 router.get("/", async (req, res) => {
   const users = await prisma.user.findMany();
@@ -26,16 +31,20 @@ router.get("/:id", async (req, res) => {
 });
 
 //POST
-router.post("/", async (req, res) => {
-  const newUser = req.body;
-
+router.post("/", checkAuthorization, async (req, res) => {
+  const newUser = {
+    name: req.body.name,
+    description: req.body.description,
+    age: +req.body.age,
+  };
+  console.log(newUser);
   await prisma.user.create({ data: newUser });
 
   res.status(201).json(newUser);
 });
 
 //UPDATE
-router.put("/:id", async (req, res) => {
+router.put("/:id", checkAuthorization, async (req, res) => {
   const updateUser = req.body;
   const userId = Number(req.params.id);
   const user = await prisma.user.update({
@@ -43,7 +52,7 @@ router.put("/:id", async (req, res) => {
     data: {
       name: req.body.name,
       description: req.body.description,
-      age: req.body.age,
+      age: +req.body.age,
     },
   });
 
@@ -51,7 +60,7 @@ router.put("/:id", async (req, res) => {
 });
 
 //DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", checkAuthorization, async (req, res) => {
   const userId = Number(req.params.id);
   const user = await prisma.user.delete({ where: { id: userId } });
 
@@ -59,8 +68,12 @@ router.delete("/:id", async (req, res) => {
 });
 
 //POST IMAGE
-router.post("/:id/image", upload.single("image"), (req, res) => {
-  res.send("Image uploaded");
-});
+router.post(
+  "/image",
+   upload.single("image"),
+  (req, res) => {
+    res.send("Image uploaded");
+  }
+);
 
 module.exports = router
