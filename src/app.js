@@ -1,21 +1,41 @@
 const express = require("express");
-const {PrismaClient} = require("@prisma/client");
-const cors = require('cors')
+const { PrismaClient } = require("@prisma/client");
+const cors = require("cors");
 // const {validate} = require("./validation/index")
-
-const prisma = new PrismaClient();
-
-const corsOptions = {
-  origin: "http://localhost:8080"
-}
+const multer = require("multer");
 
 const app = express();
 
-app.use(cors(corsOptions))
+const prisma = new PrismaClient();
+
+// CORS
+const corsOptions = {
+  origin: "http://localhost:8080",
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
+//UPLOAD FILES
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "src/images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + file.originalname)
+  }
+});
 
+const upload = multer({storage: storage});
+
+//POST IMAGE
+app.post("/upload", upload.single("image"), (req, res) => {
+  res.send("Image uploaded")
+})
+
+
+//ROUTES
 //GET
 app.get("/users", async (req, res) => {
   const users = await prisma.user.findMany();
@@ -63,5 +83,6 @@ app.delete("/users/:id", async (req, res) => {
 
   res.json(user);
 });
+
 
 module.exports = app;
